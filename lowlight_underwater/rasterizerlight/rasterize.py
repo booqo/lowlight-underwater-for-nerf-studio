@@ -282,6 +282,7 @@ class _RasterizeGaussians(Function):
                 final_idx,
                 first_idx,
                 v_out_img,
+                v_out_clr,
                 v_out_medium,
                 v_out_alpha,
             )

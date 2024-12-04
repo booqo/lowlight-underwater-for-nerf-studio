@@ -668,6 +668,7 @@ std::
         const torch::Tensor &final_idx,
         const torch::Tensor &first_idx,
         const torch::Tensor &v_output, // dL_dout_color
+        const torch::Tensor &v_output_clr,
         const torch::Tensor &v_out_medium, // dL_dout_med
         const torch::Tensor &v_output_alpha // dL_dout_alpha
     ) {
@@ -724,6 +725,7 @@ std::
         final_idx.contiguous().data_ptr<int>(),
         first_idx.contiguous().data_ptr<int>(),
         (float3 *)v_output.contiguous().data_ptr<float>(),
+        (float3 *)v_output_clr.contiguous().data_ptr<float>(),
         (float3 *)v_out_medium.contiguous().data_ptr<float>(),
         v_output_alpha.contiguous().data_ptr<float>(),
         (float2 *)v_xy.contiguous().data_ptr<float>(),

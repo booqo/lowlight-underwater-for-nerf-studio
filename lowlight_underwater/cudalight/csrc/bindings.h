@@ -222,6 +222,7 @@ std::
         const torch::Tensor &final_idx,
         const torch::Tensor &first_idx,
         const torch::Tensor &v_output, // dL_dout_color
+        const torch::Tensor &v_output_clr,
         const torch::Tensor &v_out_medium,
         const torch::Tensor &v_output_alpha
     );

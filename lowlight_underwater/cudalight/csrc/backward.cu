@@ -160,6 +160,7 @@ __global__ void rasterize_backward_kernel(
     const int* __restrict__ final_index,
     const int* __restrict__ first_index,
     const float3* __restrict__ v_output,
+    const float3* __restrict__ v_output_clr,
     const float3* __restrict__ v_out_medium,
     const float* __restrict__ v_output_alpha,
     float2* __restrict__ v_xy,
@@ -192,6 +193,9 @@ __global__ void rasterize_backward_kernel(
     float T = T_final;
     // 当前高斯模型背后的贡献
     float3 buffer = {0.f, 0.f, 0.f};
+    // clr的贡献
+    float3 buffer_clr = {0.f, 0.f, 0.f};
+
     // 当前媒体背后的贡献
     float3 buffer_medium = {0.f, 0.f, 0.f};
     // 对该像素有贡献的最后一个高斯索引
@@ -214,6 +218,7 @@ __global__ void rasterize_backward_kernel(
 
     // 该像素的 df/d_out
     const float3 v_out = v_output[pix_id];
+    const float3 v_out_clr = v_output_clr[pix_id];
     const float3 v_out_med = v_out_medium[pix_id];
     const float v_out_alpha = v_output_alpha[pix_id];
 
@@ -232,7 +237,7 @@ __global__ void rasterize_backward_kernel(
     min_medium_attn_pix = std::min(0.f, min_medium_attn_pix);
     
     // latter depth
-    float latter_depth = 10.f;
+    float latter_depth = 1000.f;
     float3 latter_exp_bs = {0.f, 0.f, 0.f};
 
     // collect and process batches of gaussians
@@ -296,6 +301,7 @@ __global__ void rasterize_backward_kernel(
                 continue;
             }
             float3 v_rgb_local = {0.f, 0.f, 0.f};
+            float3 v_rgb_clr = {0.f, 0.f, 0.f};   //clr项的导数
             float3 v_conic_local = {0.f, 0.f, 0.f};
             float2 v_xy_local = {0.f, 0.f};
             float2 v_xy_abs_local = {0.f, 0.f};
@@ -349,8 +355,13 @@ __global__ void rasterize_backward_kernel(
                 const float fac = alpha * T;
                 float v_alpha = 0.f;
                 float3 exp_attn_fac = {fac * exp_attn.x, fac * exp_attn.y, fac * exp_attn.z};
+
                 v_rgb_local = {v_out.x * exp_attn_fac.x * color_enhance_pix.x, v_out.y * exp_attn_fac.y * color_enhance_pix.y, 
                         v_out.z * exp_attn_fac.z * color_enhance_pix.z};  //T * alpha * exp_attn * phi
+
+                v_rgb_clr = {v_out_clr.x * fac * color_enhance_pix.x, v_out_clr.y * fac * color_enhance_pix.y, 
+                        v_out_clr.z * fac * color_enhance_pix.z};  //T * alpha * exp_attn * phi
+
                 float3 v_exp_attn_local = {v_rgb_local.x * rgb.x , v_rgb_local.y * rgb.y , 
                         v_rgb_local.z * rgb.z};  //T * alpha * exp_attn * phi * O_i
                 
@@ -364,6 +375,10 @@ __global__ void rasterize_backward_kernel(
                 v_color_enhance_local.y += v_out.y * exp_attn_fac.y * rgb.y;
                 v_color_enhance_local.z += v_out.z * exp_attn_fac.z * rgb.z;
 
+                v_color_enhance_local.x += v_out_clr.x * fac * rgb.x;   //O_i
+                v_color_enhance_local.y += v_out_clr.y * fac * rgb.y;
+                v_color_enhance_local.z += v_out_clr.z * fac * rgb.z;
+
 
 
                 v_z_abs_local += fabsf(v_exp_attn_local.x * medium_attn_pix.x);  //T * alpha * exp_attn * phi * O_i * sigma_attn
@@ -374,12 +389,27 @@ __global__ void rasterize_backward_kernel(
                 v_alpha += (color_enhance_pix.x * rgb.x * T * exp_attn.x - buffer.x * ra) * v_out.x - buffer_medium.x * ra * v_out_med.x;
                 v_alpha += (color_enhance_pix.y * rgb.y * T * exp_attn.y - buffer.y * ra) * v_out.y - buffer_medium.y * ra * v_out_med.y;
                 v_alpha += (color_enhance_pix.z * rgb.z * T * exp_attn.z - buffer.z * ra) * v_out.z - buffer_medium.z * ra * v_out_med.z;
+
+
+                //clr
+                v_alpha += (color_enhance_pix.x * rgb.x * T - buffer_clr.x * ra) * v_out_clr.x;
+                v_alpha += (color_enhance_pix.y * rgb.y * T - buffer_clr.y * ra) * v_out_clr.y;
+                v_alpha += (color_enhance_pix.z * rgb.z * T - buffer_clr.z * ra) * v_out_clr.z;
+
                 v_alpha += T_final * ra * v_out_alpha;
 
                 // update the running sum
+
+
                 buffer.x += color_enhance_pix.x * rgb.x * exp_attn_fac.x;
                 buffer.y += color_enhance_pix.y * rgb.y * exp_attn_fac.y;
                 buffer.z += color_enhance_pix.z * rgb.z * exp_attn_fac.z;
+
+
+                buffer_clr.x += color_enhance_pix.x * rgb.x * fac;
+                buffer_clr.y += color_enhance_pix.y * rgb.y * fac;
+                buffer_clr.z += color_enhance_pix.z * rgb.z * fac;
+
 
                 // update the running sum of medium for depth to update former alpha
                 buffer_medium.x += -T * medium_rgb_pix.x * exp_bs.x;
@@ -401,6 +431,7 @@ __global__ void rasterize_backward_kernel(
                 v_opacity_local = vis * v_alpha;
             }
             warpSum3(v_rgb_local, warp);
+            warpSum3(v_rgb_clr, warp);
             warpSum3(v_conic_local, warp);
             warpSum2(v_xy_local, warp);
             warpSum2(v_xy_abs_local, warp);
@@ -414,9 +445,9 @@ __global__ void rasterize_backward_kernel(
                 //printf("cur pix i is %d and j is %d\n", i, j);
                 int32_t g = id_batch[t];
                 float* v_rgb_ptr = (float*)(v_rgb);
-                atomicAdd(v_rgb_ptr + 3*g + 0, v_rgb_local.x);
-                atomicAdd(v_rgb_ptr + 3*g + 1, v_rgb_local.y);
-                atomicAdd(v_rgb_ptr + 3*g + 2, v_rgb_local.z);
+                atomicAdd(v_rgb_ptr + 3*g + 0, v_rgb_local.x + v_rgb_clr.x); //Oi add clr
+                atomicAdd(v_rgb_ptr + 3*g + 1, v_rgb_local.y + v_rgb_clr.y);
+                atomicAdd(v_rgb_ptr + 3*g + 2, v_rgb_local.z + v_rgb_clr.z);
                 
                 float* v_conic_ptr = (float*)(v_conic);
                 atomicAdd(v_conic_ptr + 3*g + 0, v_conic_local.x);
