@@ -1,0 +1,3 @@
+# Replace this with the config.yml saved by your training run.
+render_load_config: /absolute/path/to/training/config.yml
+render_output_path: ../../outputs/eval/images

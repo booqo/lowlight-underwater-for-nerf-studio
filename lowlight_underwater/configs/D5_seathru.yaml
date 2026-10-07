@@ -1,0 +1,19 @@
+model_name: lowlight_underwater
+output_dir: ../../outputs/D5_seathru/
+vis: viewer
+visualization_system: colmap
+downscale_factor: 2
+colmap_path: ../../datasets/D5_seathru/sparse/0
+images_path: ../../datasets/D5_seathru/images
+pipeline:
+  model:
+    enhance-enable: False
+    water_splatting_loss: True
+    bs_loss_enable: False
+    gray_loss_enable: False #
+    white_balance_loss: False
+    zero_medium: False
+    one_color: True
+    cull_alpha_thresh: 0.001
+    cull_alpha_thresh_post: 0.1
+    sh_degree: 4

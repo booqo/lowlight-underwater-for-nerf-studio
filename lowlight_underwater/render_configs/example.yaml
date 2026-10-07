@@ -1,0 +1,5 @@
+# Replace this with the config.yml saved by your training run.
+dataset: dataset
+render_load_config: /absolute/path/to/training/config.yml
+render_output_path: ../../outputs/render
+render_split: test

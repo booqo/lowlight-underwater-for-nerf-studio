@@ -1,0 +1,52 @@
+# Python environments and build products
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Data, model checkpoints, and generated results
+/datasets
+/outputs/
+/output/
+lowlight_underwater/datasets/
+lowlight_underwater/output/
+lowlight_underwater/outputs/
+lowlight_underwater/eval_configs/output.json
+*.ckpt
+*.pth
+*.pt
+*.log
+wandb/
+
+# Research workspace material does not belong in this source release
+/experiments/
+/baselines/
+/paper/
+Decision_letter.md
+note.md
+multimedia.zip
+color_bord.jpg
+lowlight_underwater/test_code/
+lowlight_underwater/test_code2/
+lowlight_underwater/configs/*_D[0-9]*.yaml
+lowlight_underwater/configs/*_turbL*.yaml
+lowlight_underwater/configs/llnerf*.yaml
+
+# Local settings and credentials
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+.run/
+.claude/
+.DS_Store
+Thumbs.db
+*.swp

@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper below."
+type: software
+title: "LLSU"
+repository-code: "https://github.com/booqo/lowlight-underwater-for-nerf-studio"
+url: "https://ieeexplore.ieee.org/abstract/document/11663292"
+authors:
+  - family-names: Zou
+    given-names: Shaofeng
+  - family-names: Wang
+    given-names: Kangxu
+  - family-names: Xu
+    given-names: Huixi
+  - family-names: Lv
+    given-names: Fengtian
+  - family-names: Feng
+    given-names: Yuxi
+  - family-names: Shao
+    given-names: Gang
+preferred-citation:
+  type: article
+  title: "LLSU: Joint Low-Light Enhancement and 3-D Gaussian Splatting for Underwater Visual Sensing"
+  authors:
+    - family-names: Zou
+      given-names: Shaofeng
+    - family-names: Wang
+      given-names: Kangxu
+    - family-names: Xu
+      given-names: Huixi
+    - family-names: Lv
+      given-names: Fengtian
+    - family-names: Feng
+      given-names: Yuxi
+    - family-names: Shao
+      given-names: Gang
+  journal: "IEEE Sensors Journal"
+  year: 2026
+  volume: 26
+  issue: 19
+  start: 29234
+  end: 29248
+  doi: "10.1109/JSEN.2026.3724206"
+  url: "https://ieeexplore.ieee.org/abstract/document/11663292"

@@ -1,0 +1,16 @@
+model_name: lowlight_underwater_big
+output_dir: ../../outputs/3_my_data_light/
+vis: viewer
+visualization_system: colmap
+downscale_factor: 1
+colmap_path: ../../datasets/3_my_data_light/sparse/0
+images_path: ../../datasets/3_my_data_light/images
+pipeline:
+  model:
+    enhance-enable: False
+    water_splatting_loss: True
+    bs_loss_enable: False
+    gray_loss_enable: False
+    white_balance_loss: False
+    zero_medium: False
+    one_color: False

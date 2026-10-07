@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lowlight_underwater"
+description = "LLSU: low-light underwater 3D Gaussian Splatting reconstruction, built on nerfstudio."
+version = "0.1.0"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+
+dependencies = [
+    "nerfstudio==1.1.4",
+    "kornia>=0.7,<0.8",
+    "pytorch-msssim>=1.0,<2",
+    "PyYAML>=6,<7",
+    "ninja",
+    "numpy<2",
+]
+
+[project.urls]
+Repository = "https://github.com/booqo/lowlight-underwater-for-nerf-studio"
+Releases = "https://github.com/booqo/lowlight-underwater-for-nerf-studio/releases"
+Paper = "https://doi.org/10.1109/JSEN.2026.3724206"
+
+[tool.setuptools]
+packages = [
+    "lowlight_underwater",
+    "lowlight_underwater.cudalight",
+    "lowlight_underwater.rasterizerlight",
+    "lowlight_underwater.utils",
+]
+include-package-data = false
+license-files = ["LICENSE", "licenses/*.txt", "THIRD_PARTY_NOTICES.md"]
+
+[tool.setuptools.package-data]
+lowlight_underwater = [
+    "configs/*.yaml",
+    "eval_configs/*.yaml",
+    "render_configs/*.yaml",
+]
+"lowlight_underwater.cudalight" = [
+    "csrc/*.cu", "csrc/*.cuh", "csrc/*.cpp", "csrc/*.h",
+    "csrc/third_party/glm/copying.txt",
+    "csrc/third_party/glm/glm/*.hpp",
+    "csrc/third_party/glm/glm/*/*.hpp",
+    "csrc/third_party/glm/glm/*/*.inl",
+    "csrc/third_party/glm/glm/*/*.h",
+]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.pyc", "*.so", "*.pyd"]
+
+[tool.pyright]
+include = ["lowlight_underwater"]
+exclude = ["**/__pycache__"]
+reportMissingImports = false
+reportMissingTypeStubs = false
+reportPrivateImportUsage = false
+pythonVersion = "3.10"
+pythonPlatform = "Linux"
+
+# register the entry point of your new method here:
+[project.entry-points.'nerfstudio.method_configs']
+lowlight_underwater = "lowlight_underwater.lowlight_underwater_config:lowlight_underwater_method"
+lowlight_underwater_big= "lowlight_underwater.lowlight_underwater_config:lowlight_underwater_big_method"

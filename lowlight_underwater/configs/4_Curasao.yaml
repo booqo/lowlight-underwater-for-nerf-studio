@@ -1,0 +1,18 @@
+model_name: lowlight_underwater
+output_dir: ../../outputs/4_Curasao/
+vis: viewer
+visualization_system: colmap
+downscale_factor: 1
+colmap_path: ../../datasets/4_Curasao/sparse/0
+images_path: ../../datasets/4_Curasao/images
+pipeline:
+  model:
+    enhance-enable: False
+    water_splatting_loss: True
+    bs_loss_enable: False
+    gray_loss_enable: False
+    white_balance_loss: False
+    zero_medium: False
+    one_color: True
+    cull_alpha_thresh: 0.2
+    sh_degree: 3
